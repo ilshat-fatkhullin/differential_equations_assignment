@@ -6,15 +6,18 @@ class Calculator:
 
     @staticmethod
     def euler_method(a, b, h, y_0):
-        rows = list()
+        x_rows = list()
+        y_rows = list()
         y = y_0
         x = a
         while x <= b:
-            rows.append(y)
+            x_rows.append(x)
+            y_rows.append(y)
             y += h * Calculator.f(x, y)
             x += h
-        rows.append(y)
-        return rows
+        x_rows.append(x)
+        y_rows.append(y)
+        return [x_rows, y_rows]
 
     @staticmethod
     def improved_euler_method(a, b, h, y_0):
