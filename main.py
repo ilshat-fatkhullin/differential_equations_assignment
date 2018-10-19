@@ -3,22 +3,38 @@ from plot_builder import PlotBuilder
 from tkinter import *
 
 
+def is_number(line):
+    if len(line) == 0:
+        return False
+    parts = line.split('.')
+    if len(parts) > 2:
+        return False
+    if len(parts[0]) == 0:
+        return False
+    if line[0] == '-' and len(parts[0]) == 1:
+        return False
+    for c in line:
+        if c != '-' and not c.isdigit() and c != '.':
+            return False
+    return True
+
+
 def plot_button_clicked():
     a = a_entry.get()
     b = b_entry.get()
     h = h_entry.get()
     y0 = y0_entry.get()
 
-    if not a.isdigit():
+    if not is_number(a):
         info_label.configure(text='Incorrect A.')
         return
-    if not b.isdigit():
+    if not is_number(b):
         info_label.configure(text='Incorrect B.')
         return
-    if not h.isdigit():
+    if not is_number(h):
         info_label.configure(text='Incorrect H.')
         return
-    if not y0.isdigit():
+    if not is_number(y0):
         info_label.configure(text='Incorrect Y0.')
         return
     info_label.configure(text='')
@@ -27,14 +43,17 @@ def plot_button_clicked():
 
 
 def show_plot():
-    result = Calculator.euler_method(2, 4, 0.5, 0)
-    PlotBuilder.build_plot('Euler method', result)
+    curves = list()
+    curves.append(Calculator.euler_method(float(a_entry.get()), float(b_entry.get()), float(h_entry.get()), float(y0_entry.get())))
+    curves.append(Calculator.improved_euler_method(float(a_entry.get()), float(b_entry.get()), float(h_entry.get()), float(y0_entry.get())))
+    curves.append(Calculator.runge_kutta_method(float(a_entry.get()), float(b_entry.get()), float(h_entry.get()), float(y0_entry.get())))
+    PlotBuilder.build_plot('Result', curves, ['Euler', 'Improved Euler', 'Runge Kutta'])
 
 
 window = Tk()
 
 window.title("Plot builder")
-window.geometry('500x500')
+window.geometry('170x260')
 
 enter_a_label = Label(window, text='Enter A:', font=("Arial", 18))
 enter_a_label.grid(column=0, row=0)
