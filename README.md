@@ -1,2 +1,2 @@
-# differential_equations_assignment
+# Plot builder
 Plot builder for differential equations course assignment
