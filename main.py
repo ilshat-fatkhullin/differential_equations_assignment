@@ -23,38 +23,57 @@ def is_number(line):
 # event handler on play button click
 def on_plot_button_clicked():
     # getting values from input fields
-    a = a_entry.get()
-    b = b_entry.get()
-    h = step_entry.get()
+    x0 = x0_entry.get()
+    x = x_entry.get()
+    step = step_entry.get()
     y0 = y0_entry.get()
 
     # checking input fields completeness
-    if not is_number(a):
-        info_label.configure(text='Incorrect A.')
+    if not is_number(x0):
+        info_label.configure(text='Incorrect X0.')
         return
-    if not is_number(b):
-        info_label.configure(text='Incorrect B.')
+    if not is_number(x):
+        info_label.configure(text='Incorrect X.')
         return
-    if not is_number(h):
-        info_label.configure(text='Incorrect H.')
+    if not is_number(step):
+        info_label.configure(text='Incorrect Step.')
         return
     if not is_number(y0):
         info_label.configure(text='Incorrect Y0.')
         return
     info_label.configure(text='')
 
+    methods = list()
+
+    if euler_method_flag.get():
+        methods.append('Euler')
+    if improved_euler_method_flag.get():
+        methods.append('Improved Euler')
+    if runge_kutta_method_flag.get():
+        methods.append('Runge Kutta')
+    if exact_method_flag.get():
+        methods.append('Exact')
+
+    if len(methods) == 0:
+        info_label.configure(text='Select at least one method.')
+        return
+
     # if all inputs are in correct form, then show the plot
-    show_plot()
+    show_plot(methods)
 
 
 # show window with plot, which is built from input parameters
-def show_plot():
+def show_plot(methods):
     # initializing list of graphs
     graphs = list()
-    # appending graphs of each computation method
-    graphs.append(Calculator.euler_method(float(a_entry.get()), float(b_entry.get()), float(step_entry.get()), float(y0_entry.get())))
-    graphs.append(Calculator.improved_euler_method(float(a_entry.get()), float(b_entry.get()), float(step_entry.get()), float(y0_entry.get())))
-    graphs.append(Calculator.runge_kutta_method(float(a_entry.get()), float(b_entry.get()), float(step_entry.get()), float(y0_entry.get())))
+    # appending graphs of chosen computation methods
+    for method in methods:
+        if method == 'Euler':
+            graphs.append(Calculator.euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()), float(y0_entry.get())))
+        elif method == 'Improved Euler':
+            graphs.append(Calculator.improved_euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()), float(y0_entry.get())))
+        elif method == 'Runge Kutta':
+            graphs.append(Calculator.runge_kutta_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()), float(y0_entry.get())))
     # building the plot of obtained graphs and printing it as a separate window
     PlotBuilder.build_plot(graphs, ['Euler', 'Improved Euler', 'Runge Kutta'])
 
@@ -65,36 +84,55 @@ window = Tk()
 # filling GUI with necessary fields
 
 window.title("Plot builder")
-window.geometry('170x260')
+window.geometry('400x300')
 
-enter_a_label = Label(window, text='Enter x0:', font=("Arial", 18))
-enter_a_label.grid(column=0, row=0)
+info_label = Label(window, text='', font=("Arial", 18), fg="red")
+info_label.grid(column=0, row=0, sticky="W", columnspan=2)
 
-a_entry = Entry(window)
-a_entry.grid(column=0, row=1)
+enter_x0_label = Label(window, text='Enter x0:', font=("Arial", 18))
+enter_x0_label.grid(column=0, row=1, sticky="W")
 
-enter_b_label = Label(window, text='Enter x:', font=("Arial", 18))
-enter_b_label.grid(column=0, row=2)
+x0_entry = Entry(window)
+x0_entry.grid(column=0, row=2, sticky="W")
 
-b_entry = Entry(window)
-b_entry.grid(column=0, row=3)
+enter_x_label = Label(window, text='Enter x:', font=("Arial", 18))
+enter_x_label.grid(column=0, row=3, sticky="W")
+
+x_entry = Entry(window)
+x_entry.grid(column=0, row=4, sticky="W")
 
 enter_y0_label = Label(window, text='Enter y0:', font=("Arial", 18))
-enter_y0_label.grid(column=0, row=4)
+enter_y0_label.grid(column=0, row=5, sticky="W")
 
 y0_entry = Entry(window)
-y0_entry.grid(column=0, row=5)
+y0_entry.grid(column=0, row=6, sticky="W")
 
 enter_step_label = Label(window, text='Enter step:', font=("Arial", 18))
-enter_step_label.grid(column=0, row=6)
+enter_step_label.grid(column=0, row=7, sticky="W")
 
 step_entry = Entry(window)
-step_entry.grid(column=0, row=7)
+step_entry.grid(column=0, row=8, sticky="W")
 
-plot_button = Button(window, text='Plot', command=on_plot_button_clicked)
-plot_button.grid(column=0, row=8)
+mathods_label = Label(window, text='Select methods:', font=("Arial", 18))
+mathods_label.grid(column=1, row=1, sticky="W")
 
-info_label = Label(window, text='', font=("Arial", 18))
-info_label.grid(column=0, row=9)
+euler_method_flag = BooleanVar()
+euler_check_button = Checkbutton(window, text='Euler', font=("Arial", 18), variable=euler_method_flag)
+euler_check_button.grid(column=1, row=2, sticky="W")
+
+improved_euler_method_flag = BooleanVar()
+improved_euler_check_button = Checkbutton(window, text='Improved Euler', font=("Arial", 18), variable=improved_euler_method_flag)
+improved_euler_check_button.grid(column=1, row=3, sticky="W")
+
+runge_kutta_method_flag = BooleanVar()
+runge_kutta_check_button = Checkbutton(window, text='Runge Kutta', font=("Arial", 18), variable=runge_kutta_method_flag)
+runge_kutta_check_button.grid(column=1, row=4, sticky="W")
+
+exact_method_flag = BooleanVar()
+exact_method_check_button = Checkbutton(window, text='Exact', font=("Arial", 18), variable=exact_method_flag)
+exact_method_check_button.grid(column=1, row=5, sticky="W")
+
+plot_button = Button(window, text='Plot', font=("Arial", 18), command=on_plot_button_clicked)
+plot_button.grid(column=1, row=8, sticky="E")
 
 window.mainloop()
