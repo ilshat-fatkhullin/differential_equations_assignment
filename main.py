@@ -69,13 +69,22 @@ def show_plot(methods):
     # appending graphs of chosen computation methods
     for method in methods:
         if method == 'Euler':
-            graphs.append(Calculator.euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()), float(y0_entry.get())))
+            graphs.append(Calculator.euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
+                                                  float(y0_entry.get())))
         elif method == 'Improved Euler':
-            graphs.append(Calculator.improved_euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()), float(y0_entry.get())))
+            graphs.append(
+                Calculator.improved_euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
+                                                 float(y0_entry.get())))
         elif method == 'Runge Kutta':
-            graphs.append(Calculator.runge_kutta_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()), float(y0_entry.get())))
+            graphs.append(
+                Calculator.runge_kutta_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
+                                              float(y0_entry.get())))
+        elif method == 'Exact':
+            graphs.append(
+                Calculator.exact_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
+                                              float(y0_entry.get())))
     # building the plot of obtained graphs and printing it as a separate window
-    PlotBuilder.build_plot(graphs, ['Euler', 'Improved Euler', 'Runge Kutta'])
+    PlotBuilder.build_plot(graphs, methods)
 
 
 # creating a GUI window
@@ -121,7 +130,8 @@ euler_check_button = Checkbutton(window, text='Euler', font=("Arial", 18), varia
 euler_check_button.grid(column=1, row=2, sticky="W")
 
 improved_euler_method_flag = BooleanVar()
-improved_euler_check_button = Checkbutton(window, text='Improved Euler', font=("Arial", 18), variable=improved_euler_method_flag)
+improved_euler_check_button = Checkbutton(window, text='Improved Euler', font=("Arial", 18),
+                                          variable=improved_euler_method_flag)
 improved_euler_check_button.grid(column=1, row=3, sticky="W")
 
 runge_kutta_method_flag = BooleanVar()

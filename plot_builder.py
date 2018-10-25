@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from calculator import Calculator
 
 
 class PlotBuilder:
@@ -12,6 +11,5 @@ class PlotBuilder:
         plt.ylabel('Y axis')
         plt.xlabel('X axis')
         plt.legend(legend, loc='upper left')
-        plt.title(Calculator.function_string)
         plt.gcf().canvas.set_window_title('Result')
         plt.show()
