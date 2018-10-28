@@ -60,12 +60,13 @@ class Calculator:
                 x) * Calculator.square_degree(math.cos(x)))
 
     @staticmethod
-    def compute_by_method(x_0, b, step, y_0, method_function):
+    def compute_method(x0, b, n, y0, method_function):
         x_rows = list()
         y_rows = list()
-        y = y_0
-        x = x_0
-        while x <= b:
+        y = y0
+        x = x0
+        step = (b - x0) / n
+        while abs(b - x) >= abs(step):
             x_rows.append(x)
             y_rows.append(y)
             try:
@@ -80,24 +81,50 @@ class Calculator:
         return [x_rows, y_rows]
 
     @staticmethod
-    def euler_method(x0, b, step, y0):
-        return Calculator.compute_by_method(x0, b, step, y0, Calculator.euler_function)
+    def compute_error(x0, b, n, y0, method):
+        method_values = method(x0, b, n, y0)
+        x_rows = method_values[0]
+        y_rows = method_values[1]
+        for i in range(len(x_rows)):
+            try:
+                y = Calculator.F(x_rows[i], x0, y0)
+            except UndefinedDomainException:
+                y_rows[i] = float('inf')
+                continue
+            y_rows[i] = abs(y_rows[i] - y)
+        return [x_rows, y_rows]
+
+    @staticmethod
+    def euler_method(x0, b, n, y0):
+        return Calculator.compute_method(x0, b, n, y0, Calculator.euler_function)
+
+    @staticmethod
+    def euler_error(x0, b, n, y0):
+        return Calculator.compute_error(x0, b, n, y0, Calculator.euler_method)
 
     @staticmethod
     def euler_function(x, y, step):
         return y + step * Calculator.f(x, y)
 
     @staticmethod
-    def improved_euler_method(x0, b, step, y0):
-        return Calculator.compute_by_method(x0, b, step, y0, Calculator.improved_euler_function)
+    def improved_euler_method(x0, b, n, y0):
+        return Calculator.compute_method(x0, b, n, y0, Calculator.improved_euler_function)
+
+    @staticmethod
+    def improved_euler_error(x0, b, n, y0):
+        return Calculator.compute_error(x0, b, n, y0, Calculator.improved_euler_method)
 
     @staticmethod
     def improved_euler_function(x, y, step):
         return y + (step / 2) * (Calculator.f(x, y) + Calculator.f(x + step, y + step * Calculator.f(x, y)))
 
     @staticmethod
-    def runge_kutta_method(x0, b, step, y0):
-        return Calculator.compute_by_method(x0, b, step, y0, Calculator.runge_kutta_function)
+    def runge_kutta_method(x0, b, n, y0):
+        return Calculator.compute_method(x0, b, n, y0, Calculator.runge_kutta_function)
+
+    @staticmethod
+    def runge_kutta_error(x0, b, n, y0):
+        return Calculator.compute_error(x0, b, n, y0, Calculator.runge_kutta_method)
 
     @staticmethod
     def runge_kutta_function(x, y, step):
@@ -108,11 +135,12 @@ class Calculator:
         return y + (step / 6) * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
 
     @staticmethod
-    def exact_method(x0, b, step, y0):
+    def exact_method(x0, b, n, y0):
         x = x0
         points = []
+        step = (b - x0) / n
 
-        while x <= b:
+        while abs(b - x) >= abs(step):
             try:
                 y = Calculator.F(x, x0, y0)
             except UndefinedDomainException:
@@ -138,11 +166,13 @@ class Calculator:
 
     @staticmethod
     def get_undefined_points(x0, b, y0):
-        k_start = int(math.ceil(x0 / (math.pi / 2)))
-        k_end = int(math.floor(b / (math.pi / 2)))
+        start = min(x0, b)
+        end = max(x0, b)
+        k_start = int(math.ceil(start / math.pi))
+        k_end = int(math.floor(end / math.pi))
         points = []
         for k in range(k_start, k_end + 1):
-            points.append((k * (math.pi / 2), math.inf))
+            points.append((k * math.pi + math.pi / 2, math.inf))
 
         if Calculator.is_particular_case(y0):
             return points
@@ -152,5 +182,4 @@ class Calculator:
         k_end = int(math.floor(b / math.pi))
         for k in range(k_start, k_end + 1):
             points.append((k * math.pi + offset, math.inf))
-
         return points

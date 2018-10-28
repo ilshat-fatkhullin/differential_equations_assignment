@@ -25,7 +25,7 @@ def on_plot_button_clicked():
     # getting values from input fields
     x0 = x0_entry.get()
     x = x_entry.get()
-    step = step_entry.get()
+    n = n_entry.get()
     y0 = y0_entry.get()
 
     # checking input fields completeness
@@ -35,8 +35,8 @@ def on_plot_button_clicked():
     if not is_number(x):
         info_label.configure(text='Incorrect X.')
         return
-    if not is_number(step):
-        info_label.configure(text='Incorrect Step.')
+    if not is_number(n):
+        info_label.configure(text='Incorrect N.')
         return
     if not is_number(y0):
         info_label.configure(text='Incorrect Y0.')
@@ -65,26 +65,41 @@ def on_plot_button_clicked():
 # show window with plot, which is built from input parameters
 def show_plot(methods):
     # initializing list of graphs
-    graphs = list()
+    result_graphs = list()
+    error_graphs = list()
+
     # appending graphs of chosen computation methods
     for method in methods:
         if method == 'Euler':
-            graphs.append(Calculator.euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
-                                                  float(y0_entry.get())))
+            result_graphs.append(Calculator.euler_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                                         float(y0_entry.get())))
+            error_graphs.append(Calculator.euler_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                                       float(y0_entry.get())))
         elif method == 'Improved Euler':
-            graphs.append(
-                Calculator.improved_euler_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
+            result_graphs.append(
+                Calculator.improved_euler_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
                                                  float(y0_entry.get())))
+            error_graphs.append(
+                Calculator.improved_euler_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                                float(y0_entry.get())))
         elif method == 'Runge Kutta':
-            graphs.append(
-                Calculator.runge_kutta_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
+            result_graphs.append(
+                Calculator.runge_kutta_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
                                               float(y0_entry.get())))
+            error_graphs.append(
+                Calculator.runge_kutta_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                             float(y0_entry.get())))
         elif method == 'Exact':
-            graphs.append(
-                Calculator.exact_method(float(x0_entry.get()), float(x_entry.get()), float(step_entry.get()),
-                                              float(y0_entry.get())))
+            result_graphs.append(
+                Calculator.exact_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                        float(y0_entry.get())))
+
     # building the plot of obtained graphs and printing it as a separate window
-    PlotBuilder.build_plot(graphs, methods)
+    PlotBuilder.set_plot_of_results(result_graphs, methods)
+    if 'Exact' in methods:
+        methods.remove('Exact')
+    PlotBuilder.set_plot_of_errors(error_graphs, methods)
+    PlotBuilder.show_plots()
 
 
 # creating a GUI window
@@ -98,31 +113,31 @@ window.geometry('400x300')
 info_label = Label(window, text='', font=("Arial", 18), fg="red")
 info_label.grid(column=0, row=0, sticky="W", columnspan=2)
 
-enter_x0_label = Label(window, text='Enter x0:', font=("Arial", 18))
+enter_x0_label = Label(window, text='X0:', font=("Arial", 18))
 enter_x0_label.grid(column=0, row=1, sticky="W")
 
 x0_entry = Entry(window)
 x0_entry.grid(column=0, row=2, sticky="W")
 
-enter_x_label = Label(window, text='Enter x:', font=("Arial", 18))
+enter_x_label = Label(window, text='X:', font=("Arial", 18))
 enter_x_label.grid(column=0, row=3, sticky="W")
 
 x_entry = Entry(window)
 x_entry.grid(column=0, row=4, sticky="W")
 
-enter_y0_label = Label(window, text='Enter y0:', font=("Arial", 18))
+enter_y0_label = Label(window, text='Y0:', font=("Arial", 18))
 enter_y0_label.grid(column=0, row=5, sticky="W")
 
 y0_entry = Entry(window)
 y0_entry.grid(column=0, row=6, sticky="W")
 
-enter_step_label = Label(window, text='Enter step:', font=("Arial", 18))
-enter_step_label.grid(column=0, row=7, sticky="W")
+enter_n_label = Label(window, text='N:', font=("Arial", 18))
+enter_n_label.grid(column=0, row=7, sticky="W")
 
-step_entry = Entry(window)
-step_entry.grid(column=0, row=8, sticky="W")
+n_entry = Entry(window)
+n_entry.grid(column=0, row=8, sticky="W")
 
-mathods_label = Label(window, text='Select methods:', font=("Arial", 18))
+mathods_label = Label(window, text='Methods:', font=("Arial", 18))
 mathods_label.grid(column=1, row=1, sticky="W")
 
 euler_method_flag = BooleanVar()
