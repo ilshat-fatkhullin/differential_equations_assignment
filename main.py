@@ -1,4 +1,7 @@
-from calculator import Calculator
+from methods.euler_method import EulerMethod
+from methods.exact_method import ExactMethod
+from methods.improved_euler_method import ImprovedEulerMethod
+from methods.runge_kutta_method import RungeKuttaMethod
 from plot_builder import PlotBuilder
 from tkinter import *
 
@@ -71,27 +74,29 @@ def show_plot(methods):
     # appending graphs of chosen computation methods
     for method in methods:
         if method == 'Euler':
-            result_graphs.append(Calculator.euler_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
-                                                         float(y0_entry.get())))
-            error_graphs.append(Calculator.euler_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+            result_graphs.append(
+                EulerMethod.get_result(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                                                    float(y0_entry.get())))
+            error_graphs.append(
+                EulerMethod.get_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
                                                        float(y0_entry.get())))
         elif method == 'Improved Euler':
             result_graphs.append(
-                Calculator.improved_euler_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
-                                                 float(y0_entry.get())))
+                ImprovedEulerMethod.get_result(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                                            float(y0_entry.get())))
             error_graphs.append(
-                Calculator.improved_euler_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
-                                                float(y0_entry.get())))
+                ImprovedEulerMethod.get_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                              float(y0_entry.get())))
         elif method == 'Runge Kutta':
             result_graphs.append(
-                Calculator.runge_kutta_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
-                                              float(y0_entry.get())))
+                RungeKuttaMethod.get_result(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                                         float(y0_entry.get())))
             error_graphs.append(
-                Calculator.runge_kutta_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
-                                             float(y0_entry.get())))
+                RungeKuttaMethod.get_error(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                                           float(y0_entry.get())))
         elif method == 'Exact':
             result_graphs.append(
-                Calculator.exact_method(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
+                ExactMethod.get_result(float(x0_entry.get()), float(x_entry.get()), float(n_entry.get()),
                                         float(y0_entry.get())))
 
     # building the plot of obtained graphs and printing it as a separate window

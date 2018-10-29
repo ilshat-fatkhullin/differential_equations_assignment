@@ -3,6 +3,7 @@ from calculation_exceptions import UndefinedDomainException
 
 
 class Calculator:
+    clamp_range = 100
 
     @staticmethod
     def cube_root(value):
@@ -20,47 +21,17 @@ class Calculator:
         return value * value
 
     @staticmethod
-    def f(x, y):
+    def get_derivative(x, y):
         if math.cos(x) == 0:
             raise UndefinedDomainException()
         return (y ** 4) * math.cos(x) + y * math.tan(x)
-
-    @staticmethod
-    def F(x, x0, y0):
-        if Calculator.is_particular_case(y0):
-            return 0
-
-        if Calculator.is_undefined_case(x, x0, y0):
-            raise UndefinedDomainException()
-
-        return 1 / Calculator.F_denominator(x, x0, y0)
-
-    @staticmethod
-    def is_particular_case(y0):
-        return y0 == 0
-
-    @staticmethod
-    def is_undefined_case(x, x0, y0):
-        if math.cos(x0) == 0:
-            return True
-
-        if math.tan(x) + Calculator.constant(x0, y0) == 0:
-            return True
-
-        return False
 
     @staticmethod
     def constant(x0, y0):
         return 1 / (Calculator.cube_degree(y0) * Calculator.cube_degree(math.cos(x0))) + 3 * math.tan(x0)
 
     @staticmethod
-    def F_denominator(x, x0, y0):
-        return Calculator.cube_root(
-            Calculator.constant(x0, y0) * Calculator.cube_degree(math.cos(x)) - 3 * math.sin(
-                x) * Calculator.square_degree(math.cos(x)))
-
-    @staticmethod
-    def compute_method(x0, b, n, y0, method_function):
+    def compute_by_method(x0, b, n, y0, method_function):
         x_rows = list()
         y_rows = list()
         y = y0
@@ -71,10 +42,12 @@ class Calculator:
             y_rows.append(y)
             try:
                 y = method_function(x, y, step)
+                if abs(y) > Calculator.clamp_range:
+                    y = y0
             except UndefinedDomainException:
-                return [x_rows, y_rows]
+                y = y0
             except OverflowError:
-                return [x_rows, y_rows]
+                y = y0
             x += step
         x_rows.append(x)
         y_rows.append(y)
@@ -87,7 +60,7 @@ class Calculator:
         y_rows = method_values[1]
         for i in range(len(x_rows)):
             try:
-                y = Calculator.F(x_rows[i], x0, y0)
+                y = Calculator.get_general_solution(x_rows[i], x0, y0)
             except UndefinedDomainException:
                 y_rows[i] = float('inf')
                 continue
@@ -95,91 +68,31 @@ class Calculator:
         return [x_rows, y_rows]
 
     @staticmethod
-    def euler_method(x0, b, n, y0):
-        return Calculator.compute_method(x0, b, n, y0, Calculator.euler_function)
-
-    @staticmethod
-    def euler_error(x0, b, n, y0):
-        return Calculator.compute_error(x0, b, n, y0, Calculator.euler_method)
-
-    @staticmethod
-    def euler_function(x, y, step):
-        return y + step * Calculator.f(x, y)
-
-    @staticmethod
-    def improved_euler_method(x0, b, n, y0):
-        return Calculator.compute_method(x0, b, n, y0, Calculator.improved_euler_function)
-
-    @staticmethod
-    def improved_euler_error(x0, b, n, y0):
-        return Calculator.compute_error(x0, b, n, y0, Calculator.improved_euler_method)
-
-    @staticmethod
-    def improved_euler_function(x, y, step):
-        return y + (step / 2) * (Calculator.f(x, y) + Calculator.f(x + step, y + step * Calculator.f(x, y)))
-
-    @staticmethod
-    def runge_kutta_method(x0, b, n, y0):
-        return Calculator.compute_method(x0, b, n, y0, Calculator.runge_kutta_function)
-
-    @staticmethod
-    def runge_kutta_error(x0, b, n, y0):
-        return Calculator.compute_error(x0, b, n, y0, Calculator.runge_kutta_method)
-
-    @staticmethod
-    def runge_kutta_function(x, y, step):
-        k_1 = Calculator.f(x, y)
-        k_2 = Calculator.f(x + step / 2, y + (step / 2) * k_1)
-        k_3 = Calculator.f(x + step / 2, y + (step / 2) * k_2)
-        k_4 = Calculator.f(x + step, y + step * k_3)
-        return y + (step / 6) * (k_1 + 2 * k_2 + 2 * k_3 + k_4)
-
-    @staticmethod
-    def exact_method(x0, b, n, y0):
-        x = x0
-        points = []
-        step = (b - x0) / n
-
-        while abs(b - x) >= abs(step):
-            try:
-                y = Calculator.F(x, x0, y0)
-            except UndefinedDomainException:
-                x += step
-                continue
-            points.append((x, y))
-            x += step
-
-        undefined_points = Calculator.get_undefined_points(x0, b, y0)
-        for p in undefined_points:
-            points.append(p)
-
-        points.sort()
-
-        x_rows = list()
-        y_rows = list()
-
-        for p in points:
-            x_rows.append(p[0])
-            y_rows.append(p[1])
-
-        return [x_rows, y_rows]
-
-    @staticmethod
-    def get_undefined_points(x0, b, y0):
-        start = min(x0, b)
-        end = max(x0, b)
-        k_start = int(math.ceil(start / math.pi))
-        k_end = int(math.floor(end / math.pi))
-        points = []
-        for k in range(k_start, k_end + 1):
-            points.append((k * math.pi + math.pi / 2, math.inf))
-
+    def get_general_solution(x, x0, y0):
         if Calculator.is_particular_case(y0):
-            return points
+            return 0
 
-        offset = math.atan(Calculator.constant(x0, y0) / 3)
-        k_start = int(math.ceil(x0 / math.pi))
-        k_end = int(math.floor(b / math.pi))
-        for k in range(k_start, k_end + 1):
-            points.append((k * math.pi + offset, math.inf))
-        return points
+        if Calculator.is_discontinuity_point(x, x0, y0):
+            raise UndefinedDomainException()
+
+        return 1 / Calculator.get_general_solution_denominator(x, x0, y0)
+
+    @staticmethod
+    def get_general_solution_denominator(x, x0, y0):
+        return Calculator.cube_root(
+            Calculator.constant(x0, y0) * Calculator.cube_degree(math.cos(x)) - 3 * math.sin(
+                x) * Calculator.square_degree(math.cos(x)))
+
+    @staticmethod
+    def is_particular_case(y0):
+        return y0 == 0
+
+    @staticmethod
+    def is_discontinuity_point(x, x0, y0):
+        if math.cos(x0) == 0:
+            return True
+
+        if math.tan(x) + Calculator.constant(x0, y0) == 0:
+            return True
+
+        return False
